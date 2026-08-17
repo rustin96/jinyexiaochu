@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>今夜小厨 · 双人小菜对决</title>
+<style>
+:root{
+  --bg:#FFF4E2;
+  --card:#FFFDF7;
+  --ink:#5B4636;
+  --sub:#9C8877;
+  --line:#F0DFC8;
+  --amber:#F09A4B;
+  --amber-deep:#D97E2E;
+  --green:#7FB77E;
+  --pink:#F49BAB;
+  --night1:#2E3557;
+  --night2:#4A4E8C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:999px}
+button:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---------- 顶部 ---------- */
+#app{max-width:1060px;margin:0 auto;padding:14px 16px 40px}
+header.top{background:linear-gradient(135deg,var(--night1),var(--night2));
+  border-radius:18px;color:#FFF6E4;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  box-shadow:0 6px 18px rgba(46,53,87,.25)}
+header.top .logo{font-size:30px;font-weight:800;letter-spacing:2px}
+header.top .logo small{font-size:13px;font-weight:400;opacity:.75;display:block;letter-spacing:1px}
+header.top .spacer{flex:1}
+.badge{background:rgba(255,246,228,.16);border:1px solid rgba(255,246,228,.35);
+  border-radius:999px;padding:6px 14px;font-size:14px}
+.badge.closing{background:#F6C960;color:#5B3A00;border-color:#F6C960;font-weight:700;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.iconbtn{background:rgba(255,246,228,.16);color:#FFF6E4;border:1px solid rgba(255,246,228,.35);
+  width:36px;height:36px;border-radius:50%;font-size:16px}
+.iconbtn:hover{background:rgba(255,246,228,.3)}
+
+/* ---------- 主区域 ---------- */
+.layout{display:flex;gap:14px;margin-top:14px;align-items:flex-start}
+.col{flex:1;min-width:0}
+.zone{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:14px}
+.zone h2{font-size:14px;color:var(--sub);letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.zone h2 .deckinfo{margin-left:auto;font-weight:400;letter-spacing:0}
+
+.cardrow{display:flex;gap:10px;flex-wrap:wrap}
+
+/* 食材卡 */
+.icard{width:86px;height:104px;background:#fff;border:2px solid var(--line);border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  user-select:none;transition:transform .12s, box-shadow .12s;position:relative}
+.icard .em{font-size:38px;line-height:1}
+.icard .nm{font-size:12px;color:var(--sub)}
+.icard.pick{cursor:pointer}
+.icard.pick:hover{transform:translateY(-4px);box-shadow:0 8px 16px rgba(219,152,74,.25);border-color:var(--amber)}
+.icard.sel{border-color:var(--amber);background:#FFF3DE;transform:translateY(-4px)}
+.icard .tick{position:absolute;top:-8px;right:-8px;background:var(--amber);color:#fff;border-radius:50%;
+  width:22px;height:22px;font-size:13px;display:flex;align-items:center;justify-content:center}
+
+/* 菜谱卡 */
+.rcard{width:150px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px;
+  user-select:none;transition:transform .12s, box-shadow .12s;position:relative}
+.rcard .rn{font-size:14px;font-weight:700;margin-bottom:6px}
+.rcard .needs{display:flex;gap:4px;flex-wrap:wrap}
+.rcard .need{background:var(--bg);border-radius:8px;padding:2px 6px;font-size:16px;line-height:1.4}
+.rcard .need.lack{opacity:.35}
+.rcard .pts{position:absolute;top:-10px;right:-8px;background:var(--amber);color:#fff;font-weight:800;
+  border-radius:999px;padding:3px 10px;font-size:13px;box-shadow:0 3px 6px rgba(217,126,46,.4)}
+.rcard.cookable{border-color:var(--green);box-shadow:0 0 0 3px rgba(127,183,126,.28);cursor:pointer}
+.rcard.cookable:hover{transform:translateY(-4px);box-shadow:0 8px 16px rgba(127,183,126,.4)}
+.rcard.swapmode{cursor:pointer}
+.rcard.swapmode:hover{border-color:var(--pink);transform:translateY(-4px)}
+.rcard .favtag{font-size:11px;color:var(--pink);font-weight:700;margin-top:6px}
+
+/* 常客 */
+.regular{display:flex;gap:12px;align-items:center}
+.regular .face{font-size:44px;flex-shrink:0}
+.regular .bubble{background:var(--bg);border-radius:12px;padding:8px 12px;font-size:13px;color:var(--sub)}
+.regular .bubble b{color:var(--ink)}
+.regular .fav{margin-left:auto;text-align:center;flex-shrink:0}
+.regular .fav .heart{font-size:26px}
+.regular .fav .cnt{font-size:12px;color:var(--sub)}
+
+/* 日志 */
+aside.log{width:250px;flex-shrink:0}
+.logbox{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px;height:420px;
+  display:flex;flex-direction:column}
+.logbox h2{font-size:14px;color:var(--sub);letter-spacing:2px;margin-bottom:8px}
+.loglist{flex:1;overflow-y:auto;font-size:12.5px;line-height:1.8;color:var(--ink)}
+.loglist .sys{color:var(--amber-deep);font-weight:700}
+.loglist .item{border-bottom:1px dashed var(--line);padding:2px 0}
+
+/* 玩家面板 */
+.oppobar{display:flex;align-items:center;gap:12px;background:var(--card);border:2px dashed var(--line);
+  border-radius:14px;padding:8px 14px;font-size:13px;color:var(--sub);margin-bottom:14px;flex-wrap:wrap}
+.oppobar b{color:var(--ink)}
+.playerpanel{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px}
+.pp-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.pp-head .who{font-size:17px;font-weight:800}
+.pp-head .stat{font-size:13px;background:var(--bg);border-radius:999px;padding:4px 12px;color:var(--ink)}
+.pp-head .stat b{color:var(--amber-deep)}
+.handrow{display:flex;gap:8px;flex-wrap:wrap;min-height:110px;align-items:center;margin-bottom:10px}
+.handrow .empty,.cardrow .empty{color:var(--sub);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.abtn{background:var(--amber);color:#fff;font-size:14px;font-weight:700;padding:9px 18px;
+  box-shadow:0 4px 10px rgba(217,126,46,.3)}
+.abtn:hover{background:var(--amber-deep)}
+.abtn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.abtn.green{background:var(--green);box-shadow:0 4px 10px rgba(127,183,126,.3)}
+.abtn.pinkb{background:var(--pink);box-shadow:0 4px 10px rgba(244,155,171,.3)}
+.abtn.mini{padding:6px 12px;font-size:12.5px}
+.hint{font-size:12.5px;color:var(--amber-deep);background:#FFF3DE;border-radius:999px;padding:5px 12px}
+
+/* 完成的菜 */
+.dishlist{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dish{background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:3px 9px;font-size:12px}
+.dish.sig{border-color:#F6C960;background:#FFF8E1}
+
+/* 遮罩/弹窗 */
+.overlay{position:fixed;inset:0;background:rgba(46,53,87,.55);backdrop-filter:blur(2px);
+  display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal{background:var(--card);border-radius:22px;padding:28px 32px;max-width:560px;width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;max-height:88vh;overflow-y:auto}
+.modal .big{font-size:56px;margin-bottom:10px}
+.modal h3{font-size:22px;margin-bottom:10px}
+.modal p{color:var(--sub);font-size:14px;line-height:1.8}
+.modal .btnrow{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.modal table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+.modal th{color:var(--sub);font-weight:600;border-bottom:2px solid var(--line);padding:6px}
+.modal td{padding:6px;border-bottom:1px dashed var(--line)}
+.modal td.win{color:var(--amber-deep);font-weight:800}
+.modal .rulerow{text-align:left;color:var(--sub)}
+.modal .rulerow b{color:var(--ink)}
+
+/* 首页菜单 */
+.menu{max-width:640px;margin:6vh auto;text-align:center}
+.menu .moon{font-size:64px}
+.menu h1{font-size:42px;letter-spacing:6px;margin:10px 0 6px}
+.menu .tag{color:var(--sub);font-size:15px;margin-bottom:30px}
+.modecard{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:20px 22px;
+  margin:0 auto 16px;max-width:440px;cursor:pointer;transition:transform .15s, border-color .15s;text-align:left}
+.modecard:hover{transform:translateY(-3px);border-color:var(--amber)}
+.modecard .mt{font-size:18px;font-weight:800;margin-bottom:4px}
+.modecard .md{font-size:13px;color:var(--sub);line-height:1.7}
+.nameinputs{display:flex;gap:10px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.nameinputs input{border:2px solid var(--line);border-radius:12px;padding:9px 14px;font-size:14px;
+  font-family:inherit;background:#fff;color:var(--ink);width:150px;outline:none}
+.nameinputs input:focus{border-color:var(--amber)}
+.foot{color:var(--sub);font-size:12px;margin-top:26px}
+
+#toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--night1);color:#FFF6E4;
+  padding:10px 22px;border-radius:999px;font-size:14px;z-index:99;box-shadow:0 8px 20px rgba(0,0,0,.25);
+  opacity:0;transition:opacity .25s;pointer-events:none}
+#toast.show{opacity:1}
+
+@media (max-width:880px){
+  .layout{flex-direction:column}
+  aside.log{width:100%}
+  .logbox{height:180px}
+}
+</style>
+</head>
+<body>
+<div id="app">加载中…</div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ================= 数据 ================= */
+const INGS = {
+  carrot:   {e:'🥕', n:'胡萝卜'},
+  egg:      {e:'🥚', n:'鸡蛋'},
+  fish:     {e:'🐟', n:'鱼'},
+  rice:     {e:'🍚', n:'米饭'},
+  mushroom: {e:'🍄', n:'蘑菇'},
+};
+const ING_IDS = Object.keys(INGS);
+
+const RECIPES = [
+  // 1 分菜（2 种食材）×8
+  {n:'黄金蛋炒饭', p:1, needs:['egg','rice']},
+  {n:'奶油蘑菇汤', p:1, needs:['mushroom','carrot']},
+  {n:'香烤鲜鱼',   p:1, needs:['fish','mushroom']},
+  {n:'太阳蛋沙拉', p:1, needs:['egg','carrot']},
+  {n:'鱼香拌饭',   p:1, needs:['fish','rice']},
+  {n:'蘑菇焖饭',   p:1, needs:['mushroom','rice']},
+  {n:'鱼子蒸蛋',   p:1, needs:['fish','egg']},
+  {n:'萝卜鱼汤',   p:1, needs:['carrot','fish']},
+  // 2 分菜（3 种食材）×10
+  {n:'山珍煎蛋饼',   p:2, needs:['carrot','egg','mushroom']},
+  {n:'渔家玉子烧',   p:2, needs:['carrot','egg','fish']},
+  {n:'彩虹拌饭',     p:2, needs:['carrot','egg','rice']},
+  {n:'森林炖鱼',     p:2, needs:['carrot','fish','mushroom']},
+  {n:'暖心鱼汤泡饭', p:2, needs:['carrot','fish','rice']},
+  {n:'陶锅蘑菇饭',   p:2, needs:['carrot','mushroom','rice']},
+  {n:'云朵蘑菇蒸蛋', p:2, needs:['egg','fish','mushroom']},
+  {n:'江户前蛋盖饭', p:2, needs:['egg','fish','rice']},
+  {n:'蛋香蘑菇炊饭', p:2, needs:['egg','mushroom','rice']},
+  {n:'深山渔夫饭',   p:2, needs:['fish','mushroom','rice']},
+  // 3 分菜（4-5 种食材）×6
+  {n:'湖畔全宴',       p:3, needs:['carrot','egg','fish','mushroom']},
+  {n:'清晨渔市定食',   p:3, needs:['carrot','egg','fish','rice']},
+  {n:'森林早餐拼盘',   p:3, needs:['carrot','egg','mushroom','rice']},
+  {n:'山海盛宴',       p:3, needs:['carrot','fish','mushroom','rice']},
+  {n:'灯塔晚餐',       p:3, needs:['egg','fish','mushroom','rice']},
+  {n:'打烊前最后一宴', p:3, needs:['carrot','egg','fish','mushroom','rice']},
+];
+
+const REGULARS = [
+  {n:'流浪猫·豆浆', e:'🐱', likes:'fish',    line:'喵……闻到鱼味就走不动道了'},
+  {n:'柴犬·阿福',   e:'🐕', likes:'egg',     line:'旺！金黄的太阳蛋最棒了！'},
+  {n:'小狐狸·团子', e:'🦊', likes:'mushroom',line:'嘿嘿，山里刚采的蘑菇最香'},
+  {n:'刺猬·球球',   e:'🦔', likes:'carrot',  line:'咔嚓咔嚓，脆脆的像小零食'},
+  {n:'仓鼠·金金',   e:'🐹', likes:'rice',    line:'圆滚滚的米饭，要塞满腮帮子'},
+  {n:'浣熊·阿茶',   e:'🦝', likes:'fish',    line:'洗洗干净再吃，这是讲究~'},
+];
+
+const HAND_LIMIT = 6;
+const WIN_DISHES = 5;
+
+/* ================= 状态 ================= */
+let G = null;
+let lastSettings = {mode:'pvp', n1:'猫厨·馒头', n2:'兔厨·花卷'};
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mkPlayer(name,emoji){return {name,emoji,hand:[],tips:3,favors:0,dishes:[],usedRefresh:false,usedSwap:false};}
+function cur(){return G.players[G.current];}
+function opp(){return G.players[1-G.current];}
+function cnt(p,id){return p.hand.filter(x=>x===id).length;}
+function canCook(p,r){return r.needs.every(id=>cnt(p,id)>=1);}
+function dishPts(p){return p.dishes.reduce((s,d)=>s+d.p,0);}
+function sigCount(p){return p.dishes.filter(d=>d.sig).length;}
+function totalScore(p){return dishPts(p) + sigCount(p)*2 + Math.floor(p.tips/2);}
+function logAdd(t,cls){G.log.push({t,cls:cls||''});if(G.log.length>60)G.log.shift();}
+
+function newGame(mode,n1,n2){
+  lastSettings = {mode,n1,n2};
+  const deck = shuffle([].concat(...ING_IDS.map(id=>Array(10).fill(id))));
+  const rd = shuffle(RECIPES.map((r,i)=>Object.assign({},r,{uid:i})));
+  const players=[mkPlayer(n1,'🐱'), mkPlayer(n2, mode==='ai'?'🦉':'🐰')];
+  players.forEach(p=>{p.hand=deck.splice(0,2);});
+  const regularDeck = shuffle(REGULARS.slice());
+  G = {
+    mode, deck, discard:[],
+    market: deck.splice(0,4),
+    recipeDeck: rd, wall: rd.splice(0,4),
+    regularDeck, regular: regularDeck.pop(),
+    players, current: Math.floor(Math.random()*2),
+    turnCounts:[0,0], closing:false, over:false, turn:1,
+    log:[],
+    ui:{mode:'idle', sel:new Set(), gather:{active:false,wantExtra:false}, lock:false, modal:null},
+  };
+  logAdd('🌙 夜市开张啦！打烊前，比谁做出的菜更好吃～','sys');
+  logAdd(`今晚的常客是 ${G.regular.e}${G.regular.n}（最爱${INGS[G.regular.likes].n}）`,'sys');
+  logAdd(`掷硬币：${cur().emoji}${cur().name} 先行动`,'sys');
+  if(G.mode==='ai' && G.current===1){ G.ui.lock=true; render(); setTimeout(aiTurn,1200); }
+  else if(G.mode==='pvp'){ G.ui.modal={type:'pass'}; render(); }
+  else render();
+}
+
+function drawIng(k){
+  const out=[];
+  for(let i=0;i<k;i++){
+    if(!G.deck.length){
+      if(!G.discard.length) break;
+      G.deck=shuffle(G.discard); G.discard=[];
+      logAdd('♻️ 食材堆用完了，弃牌堆洗回牌堆');
+    }
+    out.push(G.deck.pop());
+  }
+  return out;
+}
+
+/* ================= 行动 ================= */
+function startGather(){
+  G.ui.gather={active:true,wantExtra:false}; render();
+}
+function toggleExtra(){
+  const p=cur();
+  if(p.tips<1){ toast('小费不够啦（需要 1 枚）'); return; }
+  if(p.hand.length+2>HAND_LIMIT){ toast('手牌快满了，装不下两份'); return; }
+  G.ui.gather.wantExtra=!G.ui.gather.wantExtra; render();
+}
+function cancelGather(){ G.ui.gather={active:false,wantExtra:false}; render(); }
+function takeMarket(idx){
+  const p=cur();
+  if(p.hand.length>=HAND_LIMIT){ toast('手牌已满（上限 6 张），先做菜或备菜吧'); return; }
+  const card=G.market.splice(idx,1)[0];
+  p.hand.push(card);
+  G.market.splice(idx,0,...drawIng(1));
+  logAdd(`${p.emoji}${p.name} 从市场拿走了 ${INGS[card].e}${INGS[card].n}`);
+  if(G.ui.gather.wantExtra && p.tips>=1 && p.hand.length<HAND_LIMIT){
+    p.tips--; G.ui.gather.wantExtra=false;
+    render(); return; // 继续拿第二张
+  }
+  G.ui.gather={active:false,wantExtra:false};
+  afterAction();
+}
+
+function tryCook(wallIdx){
+  const p=cur(); const r=G.wall[wallIdx];
+  if(!r||!canCook(p,r)) return;
+  if(p.favors>=2){ G.ui.modal={type:'sig', wallIdx}; render(); return; }
+  cook(wallIdx,false);
+}
+function cook(wallIdx,sig){
+  const p=cur(); const r=G.wall[wallIdx];
+  if(!r||!canCook(p,r)) return;
+  r.needs.forEach(id=>{ p.hand.splice(p.hand.indexOf(id),1); });
+  G.discard.push(...r.needs);
+  G.wall.splice(wallIdx,1);
+  const nr=G.recipeDeck.pop(); if(nr) G.wall.push(nr);
+  const dish=Object.assign({},r,{sig:false});
+  p.dishes.push(dish);
+  p.tips+=r.p;
+  logAdd(`${p.emoji}${p.name} 做出了「${r.n}」＋${r.p}分，收到小费 ${r.p} 枚`);
+  if(r.needs.includes(G.regular.likes)){
+    p.favors++;
+    logAdd(`${G.regular.e}${G.regular.n} 吃得很满意 → ${p.name} 获得青睐 ❤（${p.favors}）`);
+  }
+  if(sig && p.favors>=2){
+    p.favors-=2; dish.sig=true;
+    logAdd(`「${r.n}」挂上了金灿灿的招牌牌 ✨＋2分`);
+  }
+  afterAction();
+}
+
+function startPrep(){ G.ui.mode='prep'; G.ui.sel=new Set(); render(); }
+function toggleSel(i){
+  if(G.ui.sel.has(i)) G.ui.sel.delete(i); else G.ui.sel.add(i);
+  render();
+}
+function confirmPrep(selArr){
+  const p=cur();
+  let sel = selArr || [...G.ui.sel];
+  if(sel.length===0){ toast('至少要弃 1 张（或点取消）'); return; }
+  sel=sel.slice().sort((a,b)=>b-a);
+  const discarded=sel.map(i=>p.hand.splice(i,1)[0]);
+  G.discard.push(...discarded);
+  const room=HAND_LIMIT-p.hand.length;
+  const drawn=drawIng(Math.min(discarded.length+1,room));
+  p.hand.push(...drawn);
+  p.tips+=1;
+  logAdd(`${p.emoji}${p.name} 备菜整理：弃 ${discarded.length} 张，抽 ${drawn.length} 张，＋1 小费`);
+  G.ui.mode='idle'; G.ui.sel=new Set();
+  afterAction();
+}
+function cancelPrep(){ G.ui.mode='idle'; G.ui.sel=new Set(); render(); }
+
+function refreshMarket(){
+  const p=cur();
+  if(p.usedRefresh){ toast('每回合只能翻新一次市场'); return; }
+  if(p.tips<2){ toast('小费不够（翻新市场需要 2 枚）'); return; }
+  p.tips-=2; p.usedRefresh=true;
+  G.discard.push(...G.market);
+  G.market=drawIng(4);
+  logAdd(`${p.emoji}${p.name} 花 2 小费把市场翻新了个遍`);
+  render();
+}
+function startSwap(){
+  const p=cur();
+  if(p.usedSwap){ toast('每回合只能换一次菜单'); return; }
+  if(p.tips<3){ toast('小费不够（换菜单需要 3 枚）'); return; }
+  if(!G.recipeDeck.length){ toast('菜谱堆空了，换不了'); return; }
+  G.ui.mode='swap'; render();
+}
+function doSwap(wallIdx){
+  const p=cur();
+  if(!G.wall[wallIdx]) return;
+  p.tips-=3; p.usedSwap=true;
+  const r=G.wall.splice(wallIdx,1)[0];
+  G.recipeDeck.unshift(r); // 放回牌堆底
+  const nr=G.recipeDeck.pop(); if(nr) G.wall.push(nr);
+  logAdd(`${p.emoji}${p.name} 花 3 小费把「${r.n}」撤下菜单，换了张新的`);
+  G.ui.mode='idle'; render();
+}
+
+/* ================= 回合流转 ================= */
+function afterAction(){
+  const p=cur();
+  G.turnCounts[G.current]++;
+  if(!G.closing && p.dishes.length>=WIN_DISHES){
+    G.closing=true;
+    logAdd(`🔔 ${p.name} 完成第 ${WIN_DISHES} 道菜！打烊铃响——对面最后行动一次`,'sys');
+  }
+  if(G.closing && G.turnCounts[0]===G.turnCounts[1]){ finishGame(); return; }
+  G.current=1-G.current; G.turn++;
+  cur().usedRefresh=false; cur().usedSwap=false;
+  G.ui={mode:'idle',sel:new Set(),gather:{active:false,wantExtra:false},lock:false,modal:null};
+  if(G.mode==='ai'){
+    if(G.current===1){ G.ui.lock=true; render(); setTimeout(aiTurn,1200); }
+    else render();
+  } else {
+    G.ui.modal={type:'pass'}; render();
+  }
+}
+
+function finishGame(){
+  G.over=true;
+  const [a,b]=G.players;
+  const sa=totalScore(a), sb=totalScore(b);
+  if(sa>sb)      logAdd(`🏆 ${a.name} 以 ${sa}:${sb} 赢下今晚！`,'sys');
+  else if(sb>sa) logAdd(`🏆 ${b.name} 以 ${sb}:${sa} 赢下今晚！`,'sys');
+  else           logAdd(`🤝 ${sa}:${sb} 平分秋色——今夜双厨！`,'sys');
+  G.ui={mode:'idle',sel:new Set(),gather:{active:false,wantExtra:false},lock:false,modal:{type:'over'}};
+  render();
+}
+
+/* ================= AI ================= */
+function aiCardScore(p,id){
+  let s=0;
+  G.wall.forEach(r=>{
+    const missing=r.needs.filter(n=>cnt(p,n)===0);
+    if(missing.includes(id) && missing.length<=3) s+=r.p/missing.length;
+  });
+  if(id===G.regular.likes) s+=0.15;
+  return s;
+}
+function aiTurn(){
+  if(!G||G.over) return;
+  const p=cur(); const fav=G.regular.likes;
+  // 1) 能做菜就做（优先高分、其次含常客爱好）
+  let best=-1,bestScore=-1;
+  G.wall.forEach((r,i)=>{
+    if(canCook(p,r)){
+      const s=r.p+(r.needs.includes(fav)?0.6:0);
+      if(s>bestScore){bestScore=s;best=i;}
+    }
+  });
+  if(best>=0){ cook(best,p.favors>=2); return; }
+  // 2) 赶集：评估每张市场卡对点单墙的边际价值（实在没用的卡也先囤着）
+  if(p.hand.length<HAND_LIMIT && G.market.length){
+    let bi=0,bs=-1;
+    G.market.forEach((id,i)=>{ const s=aiCardScore(p,id); if(s>bs){bs=s;bi=i;} });
+    startGatherSilent(); takeMarket(bi); return;
+  }
+  // 3) 备菜：弃掉没用的卡
+  const sel=[];
+  p.hand.forEach((id,i)=>{ if(aiCardScore(p,id)===0) sel.push(i); });
+  if(sel.length===0 && p.hand.length){ sel.push(0); }
+  confirmPrep(sel);
+}
+function startGatherSilent(){ G.ui.gather={active:true,wantExtra:false}; }
+
+/* ================= 渲染 ================= */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function render(){
+  const app=document.getElementById('app');
+  if(!G){ app.innerHTML=renderMenu(); return; }
+  app.innerHTML=renderGame();
+  const lg=document.getElementById('loglist');
+  if(lg) lg.scrollTop=lg.scrollHeight;
+}
+
+function renderMenu(){
+  return `
+  <div class="menu">
+    <div class="moon">🌙🍜</div>
+    <h1>今夜小厨</h1>
+    <div class="tag">双人小菜对决 · 20~30 分钟 · 赶集备料，比谁先做好 5 道菜</div>
+    <div class="nameinputs">
+      <input id="name1" placeholder="玩家一昵称" value="${esc(lastSettings.n1)}">
+      <input id="name2" placeholder="玩家二昵称" value="${esc(lastSettings.n2)}">
+    </div>
+    <div class="modecard" data-act="start-pvp">
+      <div class="mt">👥 双人同屏</div>
+      <div class="md">和好友轮流用同一台设备，交接时会遮住手牌，适合面对面决（wei）斗（xie）</div>
+    </div>
+    <div class="modecard" data-act="start-ai">
+      <div class="mt">🦉 单人 · 挑战夜班主厨</div>
+      <div class="md">对手是猫头鹰主厨“夜宵”，嘴挺硬手挺快，适合一个人测试游戏节奏</div>
+    </div>
+    <button class="abtn ghost" data-act="menu-help">📖 快速规则</button>
+    <div class="foot">电子试玩版 v0.1 · 配合《设计草案》迭代数值用</div>
+  </div>
+  ${helpModalHtml(false)}
+  `.trim();
+}
+
+function helpModalHtml(){
+  return `
+  <div class="overlay" data-act="close-modal" style="display:none" id="helpwrap">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="big">📖</div>
+      <h3>快速规则</h3>
+      <table>
+        <tr class="rulerow"><td><b>目标</b></td><td>率先完成 <b>5 道菜</b> 触发打烊，总分高者获胜（菜谱分＋招牌×2＋小费÷2）</td></tr>
+        <tr class="rulerow"><td><b>赶集 🛒</b></td><td>从市场拿 1 张食材；可加 1 小费多拿 1 张</td></tr>
+        <tr class="rulerow"><td><b>做菜 🍳</b></td><td>交出菜谱所需食材收下这道菜；获得等量小费</td></tr>
+        <tr class="rulerow"><td><b>备菜 🧺</b></td><td>弃任意张手牌，抽回等量＋1 张，并得 1 小费</td></tr>
+        <tr class="rulerow"><td><b>小费 💰</b></td><td>2 枚翻新市场 / 3 枚更换点单墙上 1 张菜谱（各每回合 1 次）</td></tr>
+        <tr class="rulerow"><td><b>常客 ❤</b></td><td>做的菜含常客最爱食材得 1 青睐；2 青睐可把刚做的菜挂成招牌（＋2分）</td></tr>
+        <tr class="rulerow"><td><b>手牌</b></td><td>上限 6 张</td></tr>
+      </table>
+      <div class="btnrow"><button class="abtn" data-act="close-modal">知道啦</button></div>
+    </div>
+  </div>`;
+}
+
+function renderGame(){
+  const p=cur(), o=opp();
+  const u=G.ui;
+  let html=`
+  <header class="top">
+    <div class="logo">🌙 今夜小厨<small>Tonight's Little Kitchen</small></div>
+    <div class="spacer"></div>
+    ${G.closing?'<div class="badge closing">🔔 打烊！最后一轮</div>':''}
+    <div class="badge">第 ${G.turn} 轮 · ${p.emoji}${esc(p.name)} 的回合</div>
+    <button class="iconbtn" data-act="help" title="规则">?</button>
+    <button class="iconbtn" data-act="back-menu" title="回首页">⌂</button>
+  </header>
+  <div class="layout">
+    <div class="col">
+      <div class="zone">
+        <h2>📋 点单墙 <span class="deckinfo">菜谱堆余 ${G.recipeDeck.length}</span></h2>
+        <div class="cardrow">${G.wall.map((r,i)=>recipeCard(r,i)).join('')||'<span class="empty">空空如也…</span>'}</div>
+      </div>
+      <div class="zone">
+        <div class="regular">
+          <div class="face">${G.regular.e}</div>
+          <div class="bubble"><b>${esc(G.regular.n)}</b>：「${esc(G.regular.line)}」<br>最爱 ${INGS[G.regular.likes].e}${INGS[G.regular.likes].n} → 做含它的菜得青睐</div>
+          <div class="fav"><div class="heart">❤</div><div class="cnt">集 2 个换招牌</div></div>
+        </div>
+      </div>
+      <div class="zone">
+        <h2>🛒 市场街 <span class="deckinfo">食材堆余 ${G.deck.length}＋弃 ${G.discard.length}</span></h2>
+        <div class="cardrow">${G.market.map((id,i)=>ingCard(id,i,u.gather.active)).join('')||'<span class="empty">市场被搬空了…</span>'}</div>
+      </div>
+    </div>
+    <aside class="log">
+      <div class="logbox">
+        <h2>📜 夜市小报</h2>
+        <div class="loglist" id="loglist">${G.log.map(l=>`<div class="item ${l.cls}">${l.t}</div>`).join('')}</div>
+      </div>
+    </aside>
+  </div>
+  <div class="oppobar">
+    ${o.emoji}<b>${esc(o.name)}</b> · 菜 ${o.dishes.length}/5 · 小费 ${o.tips} · 青睐 ${o.favors} · 当前约 <b>${totalScore(o)}</b> 分
+    <span style="margin-left:auto;font-size:12px">（看不到对方手牌，安心）</span>
+  </div>
+  <div class="playerpanel">
+    <div class="pp-head">
+      <span class="who">${p.emoji}${esc(p.name)}</span>
+      <span class="stat">💰 小费 <b>${p.tips}</b></span>
+      <span class="stat">❤ 青睐 <b>${p.favors}</b></span>
+      <span class="stat">🍽 完成的菜 <b>${p.dishes.length}/5</b></span>
+      <span class="stat">🏆 当前约 <b>${totalScore(p)}</b> 分</span>
+    </div>
+    ${p.dishes.length?`<div class="dishlist">${p.dishes.map(d=>`<span class="dish ${d.sig?'sig':''}">${d.sig?'✨':''}${d.n} +${d.p}</span>`).join('')}</div>`:''}
+    <div class="handrow">
+      ${p.hand.length?p.hand.map((id,i)=>handCard(id,i)).join(''):'<span class="empty">手牌空空的，去赶集吧</span>'}
+    </div>
+    <div class="actions">${actionButtons()}</div>
+  </div>
+  ${modalHtml()}
+  ${helpModalHtml(true)}
+  `;
+  return html;
+}
+
+function ingCard(id,idx,clickable){
+  return `<div class="icard ${clickable?'pick':''}" ${clickable?`data-act="gather-card" data-arg="${idx}"`:''}>
+    <div class="em">${INGS[id].e}</div><div class="nm">${INGS[id].n}</div></div>`;
+}
+function handCard(id,i){
+  const sel=G.ui.sel.has(i);
+  return `<div class="icard ${G.ui.mode==='prep'?'pick':''} ${sel?'sel':''}" ${G.ui.mode==='prep'?`data-act="toggle-sel" data-arg="${i}"`:''}>
+    ${sel?'<div class="tick">✓</div>':''}
+    <div class="em">${INGS[id].e}</div><div class="nm">${INGS[id].n}</div></div>`;
+}
+function recipeCard(r,i){
+  const p=cur();
+  const ok=canCook(p,r);
+  const isFav=r.needs.includes(G.regular.likes);
+  let cls='rcard';
+  if(G.ui.mode==='idle' && ok && !G.ui.lock) cls+=' cookable';
+  if(G.ui.mode==='swap') cls+=' swapmode';
+  const clickable=(G.ui.mode==='swap')||(G.ui.mode==='idle'&&ok&&!G.ui.lock&&!G.ui.gather.active);
+  return `<div class="${cls}" ${clickable?`data-act="${G.ui.mode==='swap'?'swap-card':'cook'}" data-arg="${i}"`:''}>
+    <div class="pts">${r.p} 分</div>
+    <div class="rn">${r.n}</div>
+    <div class="needs">${r.needs.map(id=>`<span class="need ${cnt(p,id)?'':'lack'}">${INGS[id].e}</span>`).join('')}</div>
+    ${isFav?'<div class="favtag">❤ 常客最爱</div>':''}
+  </div>`;
+}
+
+function actionButtons(){
+  const p=cur(), u=G.ui;
+  if(G.over) return '';
+  if(u.lock) return '<span class="hint">🦉 夜班主厨正在忙活…</span>';
+  if(u.mode==='prep'){
+    return `
+      <span class="hint">点选手牌弃掉（抽回等量+1 张）</span>
+      <button class="abtn green" data-act="confirm-prep">🧺 确认备菜</button>
+      <button class="abtn ghost" data-act="cancel-prep">取消</button>`;
+  }
+  if(u.mode==='swap'){
+    return `
+      <span class="hint">点选点单墙上要撤下的菜谱（花 3 小费）</span>
+      <button class="abtn ghost" data-act="cancel-swap">取消</button>`;
+  }
+  if(u.gather.active){
+    return `
+      <span class="hint">点市场里的食材拿取</span>
+      <button class="abtn mini ${u.gather.wantExtra?'green':'ghost'}" data-act="toggle-extra">💰1 再拿一张 ${u.gather.wantExtra?'✓':''}</button>
+      <button class="abtn ghost mini" data-act="cancel-gather">取消</button>`;
+  }
+  return `
+    <button class="abtn" data-act="start-gather">🛒 赶集</button>
+    <button class="abtn" data-act="start-prep" ${p.hand.length?'':'disabled'}>🧺 备菜</button>
+    <span style="width:10px"></span>
+    <button class="abtn ghost mini" data-act="refresh-market" ${(!p.usedRefresh&&p.tips>=2)?'':'disabled'}>💰2 翻新市场${p.usedRefresh?'（已用）':''}</button>
+    <button class="abtn ghost mini" data-act="start-swap" ${(!p.usedSwap&&p.tips>=3&&G.recipeDeck.length)?'':'disabled'}>💰3 换菜单${p.usedSwap?'（已用）':''}</button>
+    <span class="hint">💡 绿框的菜 = 现在就能做，点它！</span>`;
+}
+
+function modalHtml(){
+  const m=G.ui.modal; if(!m) return '';
+  if(m.type==='pass'){
+    const p=cur();
+    return `<div class="overlay"><div class="modal">
+      <div class="big">${p.emoji}</div>
+      <h3>轮到 ${esc(p.name)} 了</h3>
+      <p>${G.closing?'🔔 打烊铃已响，这是最后的行动机会！':'把设备交给这位厨师，别偷看对方手牌哦'}</p>
+      <div class="btnrow"><button class="abtn" data-act="pass-ok">开工！</button></div>
+    </div></div>`;
+  }
+  if(m.type==='sig'){
+    const r=G.wall[m.wallIdx];
+    return `<div class="overlay"><div class="modal">
+      <div class="big">✨</div>
+      <h3>把「${r.n}」挂成招牌菜吗？</h3>
+      <p>花费 2 个青睐 ❤（当前 ${cur().favors} 个）<br>这道菜额外 +2 分，并摆上可可爱爱的小挂牌</p>
+      <div class="btnrow">
+        <button class="abtn" data-act="sig-yes" data-arg="${m.wallIdx}">挂招牌 ✨</button>
+        <button class="abtn ghost" data-act="sig-no" data-arg="${m.wallIdx}">普通做菜</button>
+      </div>
+    </div></div>`;
+  }
+  if(m.type==='over'){
+    const [a,b]=G.players;
+    const sa=totalScore(a), sb=totalScore(b);
+    let title,emo;
+    if(sa>sb){title=`${esc(a.name)} 赢下今晚！`;emo=a.emoji;}
+    else if(sb>sa){title=`${esc(b.name)} 赢下今晚！`;emo=b.emoji;}
+    else {title='今夜双厨！';emo='🤝';}
+    return `<div class="overlay"><div class="modal">
+      <div class="big">${emo}</div>
+      <h3>${title}</h3>
+      <table>
+        <tr><th></th><th>${a.emoji}${esc(a.name)}</th><th>${b.emoji}${esc(b.name)}</th></tr>
+        ${overRows(a,b,'菜单分',p=>dishPts(p))}
+        ${overRows(a,b,'招牌 ✨×2',p=>sigCount(p)*2)}
+        ${overRows(a,b,'小费 ÷2',p=>Math.floor(p.tips/2))}
+        <tr><td><b>总分</b></td><td class="${sa>=sb?'win':''}"><b>${sa}</b></td><td class="${sb>=sa?'win':''}"><b>${sb}</b></td></tr>
+      </table>
+      <p style="font-size:12.5px">${a.dishes.map(d=>dishTag(d)).join(' ')}<br>${b.dishes.map(d=>dishTag(d)).join(' ')}</p>
+      <div class="btnrow">
+        <button class="abtn" data-act="again">🔁 再来一局</button>
+        <button class="abtn ghost" data-act="back-menu">回首页</button>
+      </div>
+    </div></div>`;
+  }
+  return '';
+}
+function overRows(a,b,label,f){
+  return `<tr><td>${label}</td><td>${f(a)}</td><td>${f(b)}</td></tr>`;
+}
+function dishTag(d){ return `「${d.n}+${d.p}${d.sig?'✨':''}」`; }
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ================= 事件 ================= */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');
+  if(!el) return;
+  const act=el.dataset.act;
+  const arg=parseInt(el.dataset.arg,10);
+  handle(act,isNaN(arg)?null:arg);
+});
+
+function handle(act,arg){
+  switch(act){
+    case 'start-pvp':{
+      const n1=val('name1')||'猫厨·馒头', n2=val('name2')||'兔厨·花卷';
+      newGame('pvp',n1,n2); break; }
+    case 'start-ai':{
+      const n1=val('name1')||'猫厨·馒头';
+      newGame('ai',n1,'夜班主厨·夜宵'); break; }
+    case 'start-gather': if(!lock()) startGather(); break;
+    case 'toggle-extra': if(!lock()) toggleExtra(); break;
+    case 'cancel-gather': if(!lock()) cancelGather(); break;
+    case 'gather-card': if(!lock()) takeMarket(arg); break;
+    case 'cook': if(!lock()) tryCook(arg); break;
+    case 'sig-yes': G.ui.modal=null; cook(arg,true); break;
+    case 'sig-no': G.ui.modal=null; cook(arg,false); break;
+    case 'start-prep': if(!lock()) startPrep(); break;
+    case 'toggle-sel': if(!lock()) toggleSel(arg); break;
+    case 'confirm-prep': if(!lock()) confirmPrep(); break;
+    case 'cancel-prep': if(!lock()) cancelPrep(); break;
+    case 'refresh-market': if(!lock()) refreshMarket(); break;
+    case 'start-swap': if(!lock()) startSwap(); break;
+    case 'swap-card': if(!lock()) doSwap(arg); break;
+    case 'cancel-swap': if(!lock()){ G.ui.mode='idle'; render(); } break;
+    case 'pass-ok': G.ui.modal=null; render(); break;
+    case 'help': helpWrap(true); break;
+    case 'menu-help': helpWrap(true); break;
+    case 'close-modal': helpWrap(false); break;
+    case 'back-menu': if(confirm('确定放弃当前这局回首页吗？')){ G=null; render(); } break;
+    case 'again': newGame(lastSettings.mode,lastSettings.n1,lastSettings.n2); break;
+  }
+}
+function lock(){ return G && G.ui.lock; }
+function val(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function helpWrap(show){
+  const w=document.getElementById('helpwrap');
+  if(w) w.style.display=show?'flex':'none';
+}
+
+render();
+</script>
+</body>
+</html>
