@@ -654,44 +654,33 @@ class MenuScene extends Phaser.Scene{
     S.add.image(960,240,'lantern').setScale(.9);
     txt(S,640,190,'今 夜 小 厨',76,'#FFF6E4','bold').setShadow(0,4,'#1E2340',8,true,true);
     txt(S,640,252,'TONIGHT\'S LITTLE KITCHEN',18,'rgba(255,246,228,.75)');
-    txt(S,640,300,'两只小动物厨师的夜市餐车对决 · 20~30 分钟 · 先做好 5 道菜者触发打烊',17,'#FFE9C4');
+    txt(S,640,300,'夜市餐车对决 · 挑战猫头鹰主厨 · 先做好 5 道菜触发打烊',17,'#FFE9C4');
     // 厨师立绘
     S.add.image(400,470,'catChef').setScale(1.15);
     S.add.image(640,480,'owlChef').setScale(1.05);
     S.add.image(880,470,'rabbitChef').setScale(1.15);
-    // 名字输入
-    let dom1=null,dom2=null;
+    // 名字输入（仅一位玩家）
+    let dom1=null;
     try{
-      dom1=S.add.dom(640,592,'input',
-        'width:190px;padding:9px 12px;font-size:16px;border-radius:12px;border:2px solid #F0DFC8;background:#FFFDF7;color:#5B4636;text-align:center;font-family:sans-serif',
+      dom1=S.add.dom(640,566,'input',
+        'width:220px;padding:10px 14px;font-size:16px;border-radius:12px;border:2px solid #F0DFC8;background:#FFFDF7;color:#5B4636;text-align:center;font-family:sans-serif',
         lastSettings.n1);
-      dom2=S.add.dom(640,592,'input',
-        'width:190px;padding:9px 12px;font-size:16px;border-radius:12px;border:2px solid #F0DFC8;background:#FFFDF7;color:#5B4636;text-align:center;font-family:sans-serif',
-        lastSettings.n2);
     }catch(e){}
-    // 模式按钮
-    const start=(mode)=>{
-      let n1=lastSettings.n1,n2=lastSettings.n2;
+    txt(S,640,524,'你的昵称',15,'#FFE9C4','bold');
+    // 开始按钮（本版本专注单人 AI 对战）
+    const startAI=()=>{
+      let n1=lastSettings.n1;
       try{
         if(dom1&&dom1.node&&dom1.node.value.trim())n1=dom1.node.value.trim().slice(0,8);
-        if(mode==='pvp'&&dom2&&dom2.node&&dom2.node.value.trim())n2=dom2.node.value.trim().slice(0,8);
       }catch(e){}
       SFX.chime();
-      S.scene.start('game',{mode:mode,n1:n1,n2:mode==='ai'?'夜班主厨·夜宵':n2});
+      S.scene.start('game',{mode:'ai',n1:n1,n2:'夜班主厨·夜宵'});
     };
-    const b1=makeBtn(S,430,660,240,64,'👥  双人同屏',()=>start('pvp'),{fill:0xE8875C,size:22});
-    const b2=makeBtn(S,850,660,240,64,'🦉  挑战夜班主厨',()=>start('ai'),{fill:0x7FB77E,size:22});
-    txt(S,430,700,'面对面轮流玩，交接自动遮屏',13,C.sub);
-    txt(S,850,700,'一个人测试节奏',13,C.sub);
-    // 名字框定位 + 标签
-    if(dom1){dom1.x=430;dom1.y=566;}
-    if(dom2){dom2.x=850;dom2.y=566;}
-    txt(S,430,524,'玩家一昵称',15,'#FFE9C4','bold');
-    txt(S,850,524,'玩家二昵称',15,'#FFE9C4','bold');
-    txt(S,850,600,'（挑战主厨时不生效）',12,'rgba(255,233,196,.6)');
+    makeBtn(S,640,662,280,68,'🦉  挑战夜班主厨',startAI,{fill:0x7FB77E,size:23});
+    txt(S,640,708,'单人 vs AI · 赢下今晚的招牌',13,C.sub);
     makeBtn(S,640,760,160,44,'📖 玩法',()=>S.showHelp(),{fill:0x4A4E8C,size:17});
     txt(S,640,790,'Phaser 3 游戏版 v0.2',12,'rgba(255,246,228,.5)');
-    S.events.on('shutdown',()=>{try{if(dom1)dom1.destroy();if(dom2)dom2.destroy();}catch(e){}});
+    S.events.on('shutdown',()=>{try{if(dom1)dom1.destroy();}catch(e){}});
   }
   showHelp(){buildHelpLayer(this);}
 }
