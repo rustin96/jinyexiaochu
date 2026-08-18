@@ -683,9 +683,12 @@ class MenuScene extends Phaser.Scene{
     const b2=makeBtn(S,850,660,240,64,'🦉  挑战夜班主厨',()=>start('ai'),{fill:0x7FB77E,size:22});
     txt(S,430,700,'面对面轮流玩，交接自动遮屏',13,C.sub);
     txt(S,850,700,'一个人测试节奏',13,C.sub);
-    // 名字框定位
-    if(dom1){dom1.x=430;dom1.y=560;}
-    if(dom2){dom2.x=850;dom2.y=560;}
+    // 名字框定位 + 标签
+    if(dom1){dom1.x=430;dom1.y=566;}
+    if(dom2){dom2.x=850;dom2.y=566;}
+    txt(S,430,524,'玩家一昵称',15,'#FFE9C4','bold');
+    txt(S,850,524,'玩家二昵称',15,'#FFE9C4','bold');
+    txt(S,850,600,'（挑战主厨时不生效）',12,'rgba(255,233,196,.6)');
     makeBtn(S,640,760,160,44,'📖 玩法',()=>S.showHelp(),{fill:0x4A4E8C,size:17});
     txt(S,640,790,'Phaser 3 游戏版 v0.2',12,'rgba(255,246,228,.5)');
     S.events.on('shutdown',()=>{try{if(dom1)dom1.destroy();if(dom2)dom2.destroy();}catch(e){}});
